@@ -6,16 +6,39 @@
     <style type="text/css">
       body {
         text-align: center;
+        background: #16213E;
+        color: #FFFFFF;
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
       }
       body>div {
         margin: auto;
       }
-      input {
-        width: 60px;
-        text-align: center;
+      #timer_input p {
+        margin: 0px;
+      }
+      #timer_input table {
+        margin: auto;
+        text-align: right;
+      }
+      #timer_input tr:first-child td:first-child input {
+        width: 52px;
+      }
+      #timer_input input {
+        display: inline-block;
+        margin: 0px;
+        width: 32px;
+        text-align: left;
+        border: 0px;
+        border-radius: 4px;
+        background: #533483;
+        color: #FFFFFF;
       }
       .timer_display {
         position: relative;
+        margin: 32px;
       }
       .timer_display>svg {
         margin: 0px;
@@ -29,7 +52,6 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: #0F3460;
         font: small-caps bold 20px/1 sans-serif;
       }
     </style>
@@ -43,8 +65,20 @@
         <p id="timer_text"></p>
       </div>
       <div id="timer_input">
-        <p><input /> / <input /> / <input /></p>
-        <p><input /> : <input /> : <input /></p>
+        <table>
+          <tbody>
+            <tr>
+              <td><input /></td>
+              <td><input /></td>
+              <td><input /></td>
+            </tr>
+            <tr>
+              <td><input /></td>
+              <td><input /></td>
+              <td><input /></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </body>
