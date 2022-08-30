@@ -12,50 +12,17 @@
         text-align: center;
       }
     </style>
-    <script type="module">
-      document.addEventListener("DOMContentLoaded", () => {
-        const initTime = new Date();
-        initTime.setHours(initTime.getHours() + 3);
-        initTime.setMinutes(0);
-        initTime.setSeconds(0);
-        initTime.setMilliseconds(0);
-        const inputs = Array.from(document.querySelectorAll("input"));
-        inputs.forEach(input => { input.type = "number"; });
-        const [yearInput, monthInput, dateInput, hoursInput, minutesInput, secondsInput] = inputs;
-        yearInput.value = initTime.getFullYear().toString();
-        monthInput.value = (initTime.getMonth() + 1).toString().padStart(2, "0");
-        dateInput.value = initTime.getDate().toString().padStart(2, "0");
-        hoursInput.value = initTime.getHours().toString().padStart(2, "0");
-        minutesInput.value = initTime.getMinutes().toString().padStart(2, "0");
-        secondsInput.value = initTime.getSeconds().toString().padStart(2, "0");
-        const timerText = document.getElementById("timer");
-        const loop = () => {
-          const targetTime = new Date();
-          targetTime.setFullYear(Number(yearInput.value));
-          targetTime.setMonth(Number(monthInput.value) - 1);
-          targetTime.setDate(Number(dateInput.value));
-          targetTime.setHours(Number(hoursInput.value));
-          targetTime.setMinutes(Number(minutesInput.value));
-          targetTime.setSeconds(Number(secondsInput.value));
-          const timeLeft = Math.floor((targetTime - (new Date())) / 1000);
-          const timeLeftHours = Math.floor(timeLeft / (60 * 60)).toString().padStart(2, "0");
-          const timeLeftMinutes = (Math.floor(timeLeft / 60) % 60).toString().padStart(2, "0");
-          const timeLeftSeconds = (timeLeft % 60).toString().padStart(2, "0");
-          timerText.textContent = `${timeLeftHours} : ${timeLeftMinutes} : ${timeLeftSeconds}`;
-          setTimeout(loop, 1000);
-        };
-        loop();
-      });
+    <script src="./index.js">
     </script>
   </head>
   <body>
     <div style="margin: auto;">
-      <div>
+      <div id="timer_input">
         <p><input /> / <input /> / <input /></p>
         <p><input /> : <input /> : <input /></p>
       </div>
       <div>
-        <h1 id="timer"></h1>
+        <h1 id="timer_display"></h1>
       </div>
     </div>
   </body>
