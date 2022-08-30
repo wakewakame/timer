@@ -15,7 +15,7 @@ const TimerInputElement = class {
     this.onChange = null;
     inputs.forEach(input => {
       input.addEventListener("input", () => {
-        this.onChange?.(this.getDate());
+        this.onChange?.(new Date(), this.getDate());
       });
     });
 
@@ -51,12 +51,12 @@ const TimerInputElement = class {
   }
 };
 
-const TimerDisplayElement = class {
+const TimerTextElement = class {
   constructor(element) {
     this.element = element;
   }
-  update(targetDate) {
-    const timeLeft = Math.round((targetDate.getTime() - (new Date()).getTime()) / 1000);
+  update(currentDate, targetDate) {
+    const timeLeft = Math.round((targetDate.getTime() - currentDate.getTime()) / 1000);
     const timeLeftSign = timeLeft >= 0 ? "" : "-";
     const timeLeftAbs = Math.abs(timeLeft);
     const timeLeftHours = Math.floor(timeLeftAbs / (60 * 60)).toString().padStart(2, "0");
@@ -66,23 +66,71 @@ const TimerDisplayElement = class {
   }
   static fromId(elementId) {
     const element = document.getElementById(elementId);
-    return new TimerDisplayElement(element);
+    return new TimerTextElement(element);
+  }
+};
+
+const TimerGraphElement = class {
+  constructor(element) {
+    this.element = element;
+  }
+  update(startDate, currentDate, targetDate) {
+    let progress = (currentDate.getTime() - startDate.getTime()) / (targetDate.getTime() - startDate.getTime());
+    progress = Math.max(0, Math.min(1, progress));
+    const startDeg = 270 - 2;
+    const endDeg = -90 + 2;
+    const middleDeg = startDeg * (1 - progress) + endDeg * progress;
+    const startX  = Math.cos(-  startDeg * Math.PI / 180.0);
+    const startY  = Math.sin(-  startDeg * Math.PI / 180.0);
+    const endX    = Math.cos(-    endDeg * Math.PI / 180.0);
+    const endY    = Math.sin(-    endDeg * Math.PI / 180.0);
+    const middleX = Math.cos(- middleDeg * Math.PI / 180.0);
+    const middleY = Math.sin(- middleDeg * Math.PI / 180.0);
+    const inner = 0.95;
+    const path1LargeArcFlag = Math.abs(middleDeg - startDeg) < 180 ? 0 : 1;
+    const path1 =
+      `<path fill="#E94560" stroke-opacity="0" d="` +
+        `M ${startX} ${startY} A 1 1 0 ${path1LargeArcFlag} 1 ${middleX} ${middleY} ` +
+        `L ${middleX * inner} ${middleY * inner} A ${inner} ${inner} 0 ${path1LargeArcFlag} 0 ${startX * inner} ${startY * inner}` +
+      `" />`
+    const path2LargeArcFlag = Math.abs(endDeg - middleDeg) < 180 ? 0 : 1;
+    const path2 =
+      `<path fill="#0F3460" stroke-opacity="0" d="` +
+        `M ${middleX} ${middleY} A 1 1 0 ${path2LargeArcFlag} 1 ${endX} ${endY} ` +
+        `L ${endX * inner} ${endY * inner} A ${inner} ${inner} 0 ${path2LargeArcFlag} 0 ${middleX * inner} ${middleY * inner}` +
+      `" />`
+    const path3 =
+      `<path fill-opacity="0" stroke="#E94560" stroke-width="0.05" d="` +
+        `M ${middleX} ${middleY} L ${middleX * 0.9} ${middleY * 0.9}` +
+      `" />`
+    this.element. innerHTML = path1 + "\n" + path2 + "\n" + path3;
+  }
+  static fromId(elementId) {
+    const element = document.getElementById(elementId);
+    return new TimerGraphElement(element);
   }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  const startDate = new Date();
   const timerInput = TimerInputElement.fromId("timer_input");
-  const timerText = TimerDisplayElement.fromId("timer_display");
-  timerInput.onChange = date => { timerText.update(date); };
+  const timerText = TimerTextElement.fromId("timer_text");
+  const timerGraph = TimerGraphElement.fromId("timer_graph");
+  timerInput.onChange = (currentDate, targetDate) => {
+    timerText.update(currentDate, targetDate);
+    timerGraph.update(startDate, currentDate, targetDate);
+  };
   const loop = () => {
     // クエリの有無で設定画面とタイマー画面を切り替え
     // inputの表示をもうちょっとマシにする
-    // 円形のタイマーを表示する
+    const currentDate = new Date();
     const targetDate = timerInput.getDate();
-    timerText.update(targetDate);
+    timerText.update(currentDate, targetDate);
+    timerGraph.update(startDate, currentDate, targetDate);
     let timeout = 1000 - (new Date).getMilliseconds();
     if (timeout < 100) { timeout += 1000; }
     setTimeout(loop, timeout);
   };
   loop();
 });
+

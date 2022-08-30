@@ -7,22 +7,44 @@
       body {
         text-align: center;
       }
+      body>div {
+        margin: auto;
+      }
       input {
         width: 60px;
         text-align: center;
+      }
+      .timer_display {
+        position: relative;
+      }
+      .timer_display>svg {
+        margin: 0px;
+        padding: 0px;
+        width: 160px;
+      }
+      .timer_display>p {
+        margin: 0px;
+        padding: 0px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #0F3460;
+        font: small-caps bold 20px/1 sans-serif;
       }
     </style>
     <script src="./index.js">
     </script>
   </head>
   <body>
-    <div style="margin: auto;">
+    <div>
+      <div class="timer_display">
+        <svg id="timer_graph" viewBox="-1 -1 2 2" xmlns="http://www.w3.org/2000/svg"></svg>
+        <p id="timer_text"></p>
+      </div>
       <div id="timer_input">
         <p><input /> / <input /> / <input /></p>
         <p><input /> : <input /> : <input /></p>
-      </div>
-      <div>
-        <h1 id="timer_display"></h1>
       </div>
     </div>
   </body>
