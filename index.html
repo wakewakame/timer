@@ -2,57 +2,92 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>timer</title>
     <style type="text/css">
       body {
         text-align: center;
         background: #16213E;
         color: #FFFFFF;
-        width: 100%;
-        height: 100%;
+        min-width: 100vw;
         margin: 0px;
+        border: 0px;
         padding: 0px;
       }
-      body>div {
-        margin: auto;
-      }
-      #timer_input p {
+      div {
         margin: 0px;
+        border: 0px;
+        padding: 0px;
       }
-      #timer_input table {
-        margin: auto;
-        text-align: right;
-      }
-      #timer_input tr:first-child td:first-child input {
-        width: 52px;
-      }
-      #timer_input input {
-        display: inline-block;
+      p {
         margin: 0px;
-        width: 32px;
+        border: 0px;
+        padding: 0px;
+      }
+      .timer_display {
+        position: relative;
+        min-width: 100vw;
+        min-height: 100vh;
+      }
+      #timer_graph {
+        margin: 0px;
+        padding: 0px;
+        position: absolute;
+        width: min(80vw, 80vh);
+        height: min(80vw, 80vh);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      #timer_text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+      }
+      #timer_text p:nth-child(1) {
+        font: small-caps bold min(10vw, 10vh)/1 monospace;
+      }
+      #timer_text p:nth-child(2) {
+        font: small-caps bold min(4vw, 4vh)/1 monospace;
+      }
+      #setting {
+        visibility: hidden;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      input {
+        display: block;
+        float: left;
+        margin: 2px;
+        padding: 0px;
         text-align: left;
         border: 0px;
         border-radius: 4px;
         background: #533483;
         color: #FFFFFF;
+        font: small-caps 8px/1 monospace;
+        height: 16px;
       }
-      .timer_display {
-        position: relative;
-        margin: 32px;
+      input[type="date"] {
+        width: 92px;
       }
-      .timer_display>svg {
+      input[type="time"] {
+        width: 60px;
+      }
+      button {
+        width: 40px;
+        height: 16px;
         margin: 0px;
         padding: 0px;
-        width: 160px;
-      }
-      .timer_display>p {
-        margin: 0px;
-        padding: 0px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font: small-caps bold 20px/1 sans-serif;
+        border: 0px;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #16213E;
+        font: small-caps 8px/1 monospace;
       }
     </style>
     <script src="./index.js">
@@ -61,24 +96,24 @@
   <body>
     <div>
       <div class="timer_display">
-        <svg id="timer_graph" viewBox="-1 -1 2 2" xmlns="http://www.w3.org/2000/svg"></svg>
-        <p id="timer_text"></p>
-      </div>
-      <div id="timer_input">
-        <table>
-          <tbody>
-            <tr>
-              <td><input /></td>
-              <td><input /></td>
-              <td><input /></td>
-            </tr>
-            <tr>
-              <td><input /></td>
-              <td><input /></td>
-              <td><input /></td>
-            </tr>
-          </tbody>
-        </table>
+        <div>
+          <svg id="timer_graph" viewBox="-1 -1 2 2" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div id="timer_text">
+            <p></p>
+            <p></p>
+          </div>
+        </div>
+        <div id="setting">
+          <div id="start_time_input">
+            <input type="date"/>
+            <input type="time"/>
+          </div>
+          <div id="end_time_input">
+            <input type="date"/>
+            <input type="time"/>
+          </div>
+          <button>OK</button>
+        </div>
       </div>
     </div>
   </body>

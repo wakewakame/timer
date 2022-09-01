@@ -2,47 +2,39 @@
 
 const TimerInputElement = class {
   constructor(element) {
-    const inputs = Array.from(element.querySelectorAll("input"));
-    inputs.forEach(input => { input.type = "number"; });
-    this.inputs = {
-      "FullYear": inputs[0],
-      "Month"   : inputs[1],
-      "Date"    : inputs[2],
-      "Hours"   : inputs[3],
-      "Minutes" : inputs[4],
-      "Seconds" : inputs[5],
-    };
+    this.dateInput = element.querySelector('input[type="date"]');
+    this.timeInput = element.querySelector('input[type="time"]');
+    this.setDate(new Date);
     this.onChange = null;
-    inputs.forEach(input => {
-      input.addEventListener("input", () => {
-        this.onChange?.(new Date(), this.getDate());
-      });
+    [this.dateInput, this.timeInput].forEach(input => {
+      input.addEventListener("input", () => { this.onChange?.(); });
     });
-
-    const date = new Date();
-    date.setHours(date.getHours() + 3);
-    date.setMinutes(0);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
-    this.setDate(date);
   }
   setDate(date) {
-    Object.entries(this.inputs).forEach(([key, input]) => {
-      let valueNumber = date[`get${key}`]();
-      if (key === "Month") { valueNumber += 1; }
-      let valueString = valueNumber.toString();
-      if (key !== "FullYear") { valueString = valueString.padStart(2, "0"); }
-      input.value = valueString;
-    });
+    const inputYear    = date.getFullYear()   .toString().padStart(4, "0");
+    const inputMonth   = (date.getMonth() + 1).toString().padStart(2, "0");
+    const inputDate    = date.getDate()       .toString().padStart(2, "0");
+    const inputHours   = date.getHours()      .toString().padStart(2, "0");
+    const inputMinutes = date.getMinutes()    .toString().padStart(2, "0");
+    this.dateInput.value = `${inputYear}-${inputMonth}-${inputDate}`;
+    this.timeInput.value = `${inputHours}:${inputMinutes}`;
   }
   getDate() {
+    const dateRegex = /^(\d+)[^\d]+(\d+)[^\d]+(\d+)$/;
+    const timeRegex = /^(\d+)[^\d]+(\d+)/;
+    const dateText = this.dateInput.value;
+    const timeText = this.timeInput.value;
+    if (!dateRegex.test(dateText) || !timeRegex.test(timeText)) { return null; }
+    const [inputYear, inputMonth, inputDate] = dateText.match(dateRegex).slice(1, 4);
+    const [inputHours, inputMinutes] = timeText.match(timeRegex).slice(1, 3);
     const date = new Date();
+    date.setFullYear(Number(inputYear));
+    date.setMonth(Number(inputMonth) - 1);
+    date.setDate(Number(inputDate));
+    date.setHours(Number(inputHours));
+    date.setMinutes(Number(inputMinutes));
+    date.setSeconds(0);
     date.setMilliseconds(0);
-    Object.entries(this.inputs).forEach(([key, input]) => {
-      let value = Number(input.value);
-      if (key === "Month") { value -= 1; }
-      date[`set${key}`](value);
-    });
     return date;
   }
   static fromId(elementId) {
@@ -53,16 +45,23 @@ const TimerInputElement = class {
 
 const TimerTextElement = class {
   constructor(element) {
-    this.element = element;
+    this.elements = Array.from(element.querySelectorAll("p"));
   }
-  update(currentDate, targetDate) {
-    const timeLeft = Math.round((targetDate.getTime() - currentDate.getTime()) / 1000);
+  update(currentDate, endDate) {
+    const timeLeft = Math.round((endDate.getTime() - currentDate.getTime()) / 1000);
     const timeLeftSign = timeLeft >= 0 ? "" : "-";
     const timeLeftAbs = Math.abs(timeLeft);
     const timeLeftHours = Math.floor(timeLeftAbs / (60 * 60)).toString().padStart(2, "0");
     const timeLeftMinutes = (Math.floor(timeLeftAbs / 60) % 60).toString().padStart(2, "0");
     const timeLeftSeconds = (timeLeftAbs % 60).toString().padStart(2, "0");
-    this.element.textContent = `${timeLeftSign}${timeLeftHours}:${timeLeftMinutes}:${timeLeftSeconds}`;
+    this.elements[0].textContent = `${timeLeftSign}${timeLeftHours}:${timeLeftMinutes}:${timeLeftSeconds}`;
+
+    const endYearStr    = endDate.getFullYear()   .toString().padStart(4, "0");
+    const endMonthStr   = (endDate.getMonth() + 1).toString().padStart(2, "0");
+    const endDateStr    = endDate.getDate()       .toString().padStart(2, "0");
+    const endHoursStr   = endDate.getHours()      .toString().padStart(2, "0");
+    const endMinutesStr = endDate.getMinutes()    .toString().padStart(2, "0");
+    this.elements[1].textContent = `${endYearStr}/${endMonthStr}/${endDateStr} ${endHoursStr}:${endMinutesStr}`;
   }
   static fromId(elementId) {
     const element = document.getElementById(elementId);
@@ -74,8 +73,8 @@ const TimerGraphElement = class {
   constructor(element) {
     this.element = element;
   }
-  update(startDate, currentDate, targetDate) {
-    let progress = (currentDate.getTime() - startDate.getTime()) / (targetDate.getTime() - startDate.getTime());
+  update(startDate, currentDate, endDate) {
+    let progress = (currentDate.getTime() - startDate.getTime()) / (endDate.getTime() - startDate.getTime());
     progress = Math.max(0, Math.min(1, progress));
     const startDeg = 270 - 16;
     const endDeg = -90 + 16;
@@ -107,21 +106,44 @@ const TimerGraphElement = class {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const startDate = new Date();
-  const timerInput = TimerInputElement.fromId("timer_input");
+  const topElem = document.getElementById("timer_text");
+  const settingElem = document.getElementById("setting");
+  topElem.addEventListener("click", () => {
+    topElem.style["visibility"] = "hidden";
+    settingElem.style["visibility"] = "visible";
+  });
+  settingElem.querySelector("button").addEventListener("click", () => {
+    topElem.style["visibility"] = "visible";
+    settingElem.style["visibility"] = "hidden";
+  });
+
+  const startTimeInput = TimerInputElement.fromId("start_time_input");
+  const endTimeInput = TimerInputElement.fromId("end_time_input");
   const timerText = TimerTextElement.fromId("timer_text");
   const timerGraph = TimerGraphElement.fromId("timer_graph");
-  timerInput.onChange = (currentDate, targetDate) => {
-    timerText.update(currentDate, targetDate);
-    timerGraph.update(startDate, currentDate, targetDate);
-  };
+  endTimeInput.setDate((() => {
+    const date = endTimeInput.getDate();
+    date.setHours(date.getHours() + 3);
+    date.setMinutes(0);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  })());
+  [startTimeInput, endTimeInput].forEach(input => {
+    input.onChange = () => {
+      const currentDate = new Date();
+      const startDate = startTimeInput.getDate();
+      const endDate = endTimeInput.getDate();
+      timerText.update(currentDate, endDate);
+      timerGraph.update(startDate, currentDate, endDate);
+    };
+  });
   const loop = () => {
-    // クエリの有無で設定画面とタイマー画面を切り替え
-    // inputの表示をもうちょっとマシにする
     const currentDate = new Date();
-    const targetDate = timerInput.getDate();
-    timerText.update(currentDate, targetDate);
-    timerGraph.update(startDate, currentDate, targetDate);
+    const startDate = startTimeInput.getDate();
+    const endDate = endTimeInput.getDate();
+    timerText.update(currentDate, endDate);
+    timerGraph.update(startDate, currentDate, endDate);
     let timeout = 1000 - (new Date).getMilliseconds();
     if (timeout < 100) { timeout += 1000; }
     setTimeout(loop, timeout);
