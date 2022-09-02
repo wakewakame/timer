@@ -45,7 +45,7 @@ const TimerInputElement = class {
 
 const TimerTextElement = class {
   constructor(element) {
-    this.elements = Array.from(element.querySelectorAll("p"));
+    this.element = element;
   }
   update(currentDate, endDate) {
     const timeLeft = Math.round((endDate.getTime() - currentDate.getTime()) / 1000);
@@ -54,14 +54,7 @@ const TimerTextElement = class {
     const timeLeftHours = Math.floor(timeLeftAbs / (60 * 60)).toString().padStart(2, "0");
     const timeLeftMinutes = (Math.floor(timeLeftAbs / 60) % 60).toString().padStart(2, "0");
     const timeLeftSeconds = (timeLeftAbs % 60).toString().padStart(2, "0");
-    this.elements[0].textContent = `${timeLeftSign}${timeLeftHours}:${timeLeftMinutes}:${timeLeftSeconds}`;
-
-    const endYearStr    = endDate.getFullYear()   .toString().padStart(4, "0");
-    const endMonthStr   = (endDate.getMonth() + 1).toString().padStart(2, "0");
-    const endDateStr    = endDate.getDate()       .toString().padStart(2, "0");
-    const endHoursStr   = endDate.getHours()      .toString().padStart(2, "0");
-    const endMinutesStr = endDate.getMinutes()    .toString().padStart(2, "0");
-    this.elements[1].textContent = `${endYearStr}/${endMonthStr}/${endDateStr} ${endHoursStr}:${endMinutesStr}`;
+    this.element.textContent = `${timeLeftSign}${timeLeftHours}:${timeLeftMinutes}:${timeLeftSeconds}`;
   }
   static fromId(elementId) {
     const element = document.getElementById(elementId);
@@ -106,17 +99,6 @@ const TimerGraphElement = class {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const topElem = document.getElementById("timer_text");
-  const settingElem = document.getElementById("setting");
-  topElem.addEventListener("click", () => {
-    topElem.style["visibility"] = "hidden";
-    settingElem.style["visibility"] = "visible";
-  });
-  settingElem.querySelector("button").addEventListener("click", () => {
-    topElem.style["visibility"] = "visible";
-    settingElem.style["visibility"] = "hidden";
-  });
-
   const startTimeInput = TimerInputElement.fromId("start_time_input");
   const endTimeInput = TimerInputElement.fromId("end_time_input");
   const timerText = TimerTextElement.fromId("timer_text");

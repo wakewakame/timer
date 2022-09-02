@@ -1,0 +1,43 @@
+* {
+  margin: 0px;
+  border: 0px;
+  padding: 0px;
+}
+body {
+  background: #16213E;
+  color: #FFFFFF;
+}
+.center {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+.center>* {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#timer_graph {
+  width: 544px;
+  height: 544px;
+}
+#timer_text {
+  text-align: center;
+  font: small-caps bold 68px/1 monospace;
+}
+input {
+  text-align: center;
+  border-radius: 8px;
+  background: #533483;
+  color: #FFFFFF;
+  font: small-caps 24px/1 monospace;
+  height: 40px;
+}
+input[type="date"] {
+  width: 200px;
+}
+input[type="time"] {
+  width: 120px;
+}
+
